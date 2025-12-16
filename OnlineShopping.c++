@@ -227,6 +227,48 @@ public:
         }
     }
 };
+//----------------------------------------------------------------- course enrollment- yousef tarek
+class EnrollmentNode{
+    public:
+    int studentID;
+    int courseID;
+    EnrollmentNode* Next;
+    EnrollmentNode* Prev;
+    EnrollmentNode(int st_id, int cs_id){
+        studentID = st_id;
+        courseID = cs_id;
+        Next = Prev = NULL;
+    }
+};
+class EnrollmentHistory{
+public:
+    EnrollmentNode* head;
+    EnrollmentNode* tail;
+    EnrollmentHistory(){
+        head = tail = NULL;
+    }
+    void add(int st_id, int course_id){
+        EnrollmentNode * newNode = new EnrollmentNode(st_id,course_id);
+        if (head== NULL){
+            head = tail = newNode;
+        }
+        else{
+            tail->Next = newNode;
+            newNode->Prev = tail;
+            tail = newNode;
+        }
+    }
+    void view(int st_id){
+        EnrollmentNode * temp = head;
+        while(temp!= NULL){
+            if(temp->studentID == st_id){
+                cout<<"Course Id: "<<temp->courseID<<endl;
+
+            }
+            temp= temp->Next;
+        }
+    }
+};
 //-----------------------------------------------------------------------------------------------------------------
 int main()
 {
