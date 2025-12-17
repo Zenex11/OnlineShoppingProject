@@ -211,7 +211,7 @@ public:
             getline(ss, address, ',');
             if(!isExists(stoi(id))){
             addCustomer(stoi(id), name, email, phone, address, false); // false عشان ما يحفظش الملف تاني
-        }   
+        }
         }
 
         file.close();
@@ -227,6 +227,170 @@ public:
         }
     }
 };
+//----------------------------------------------------------------- Order History- yousef tarek
+class OrderNode{
+    public:
+    int orderID;
+    int customerID;
+    string product_name;
+    int price;
+    OrderNode* Next;
+    OrderNode* Prev;
+    OrderNode(int or_id, int cs_id, string name, int money){
+        orderID = or_id;
+        customerID = cs_id;
+        product_name = name;
+        price = money;
+        Next = Prev = NULL;
+    }
+};
+class OrderHistory{
+public:
+    OrderNode* head;
+    OrderNode* tail;
+    OrderHistory(){
+        head = tail = NULL;
+    }
+    void addOrder(int or_id, int cs_id, string name, int money){
+        OrderNode * newNode = new OrderNode(or_id, cs_id, name, money);
+        if (head== NULL){
+            head = tail = newNode;
+        }
+        else{
+            tail->Next = newNode;
+            newNode->Prev = tail;
+            tail = newNode;
+        }
+    }
+    void viewOrders(int cs_id){
+        OrderNode * temp = head;
+        bool found = false;
+        while(temp!= NULL){
+            if(temp->customerID == cs_id){
+                cout << "Order ID: " << temp->orderID << endl;
+                cout << "Product: " << temp->product_name << endl;
+                cout << "Price: " <<temp->price<<" $"<< endl;
+                cout << "------------------------\n";
+                found = true;
+            }
+            temp= temp->Next;
+            }
+            if(!found){
+                cout<<" customer has not placed any orders"<<endl;
+        }
+    }
+};
+//----------------------------------------------------------------------------------------Product Catalog- yousef tarek
+class productNode{
+public:
+    int productID;
+    string name;
+    string category;
+    int price;
+    int stock;
+    productNode * left;
+    productNode * right;
+    productNode(int id, string n, string c, int p , int s){
+        productID = id;
+        name = n;
+        category = c;
+        price = p;
+        stock = s;
+        left = right = NULL;
+    }
+};
+class productCatalog{
+public:
+    productNode* root;
+    productCatalog(){
+        root = NULL;
+    }
+    productNode* addProduct(productNode* r, int id, string n, string c, int p, int s){
+        if(r == NULL){
+            return new productNode(id,n,c,p,s);
+        }
+        if(id< r->productID){
+            r->left = addProduct(r->left, id, n, c, p, s);
+        }
+        if(id> r->productID){
+            r->right = addProduct(r->right, id, n, c, p, s);
+        }
+        return r;
+    }
+    void addProduct(int id, string n, string c, int p, int s){
+        root = addProduct(root,id ,n ,c , p, s);
+    }
+    productNode* searchProduct(productNode* r, int id){
+        if(r == NULL || id==r->productID){
+            return r;
+        }
+        if(id < r->productID ){
+            return searchProduct(r->left,id);
+        }
+        if(id > r->productID){
+            return searchProduct(r->right,id);
+        }
+    }
+    void searchProduct(int id){
+        productNode* result = searchProduct(root, id);
+        if(result == NULL){
+            cout<<"product not found "<<endl;
+        }
+        else{cout << "Product ID: " << result->productID << endl;
+        cout << "Name: " << result->name << endl;
+        cout << "Category: " << result->category << endl;
+        cout << "Price: " << result->price << " $" << endl;
+        cout << "Stock: " << result->stock << endl;}
+    }
+    productNode* findMin(productNode* r){
+        while(r->left != NULL){
+            r = r->left;
+        }
+        return r;
+    }
+    productNode* removeProduct(productNode* r, int id){
+        if(r== NULL){
+            return NULL;
+        }
+        if(id< r->productID){
+            r->left = removeProduct(r->left,id);
+        }
+        else if(id> r->productID){
+            r->right = removeProduct(r->right,id);
+        }
+        else{
+            if(r->left == NULL && r->right == NULL){
+                delete r;
+                return NULL;
+            }
+            else if(r->left == NULL){
+                productNode* temp = r->right;
+                delete r;
+                return temp;
+            }
+            else if(r->right == NULL){
+                productNode* temp = r->left;
+                delete r;
+                return temp;
+            }
+            else{
+                productNode* temp = findMin(r->right);
+                r->productID = temp->productID;
+                r->name = temp->name;
+                r->category = temp->category;
+                r->price = temp->price;
+                r->stock = temp->stock;
+                r->right = removeProduct(r->right, temp->productID);
+            }
+        }
+        return r;
+    }
+    void removeProduct(int id){
+        root = removeProduct(root,id);
+    }
+
+};
+
 //-----------------------------------------------------------------------------------------------------------------
 int main()
 {
