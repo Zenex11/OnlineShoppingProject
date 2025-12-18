@@ -178,6 +178,15 @@ public:
             temp = temp->next;
         }
     }
+    void search_Costumer(int id){
+        if(isExists(id))
+            cout<<"Costumer with ID: "<<id<<" is found"<<nl;
+        else 
+            cout<<"Costumer with ID: "<<id<<" isn't found"<<nl;
+    }
+
+
+
     void save_File(){
         ofstream file(filename);
         if(!file){
@@ -228,8 +237,172 @@ public:
     }
 };
 //-----------------------------------------------------------------------------------------------------------------
+
+// Product catalog and sorting BST - Youssef and Farha---------------------------------------------------------------
+class productNode{
+public:
+    int productID;
+    string name;
+    string category;
+    double price;
+    int stock;
+    productNode * left;
+    productNode * right;
+    productNode* priceLeft;
+    productNode* priceRight;
+    productNode(int id, string n, string c, double p , int s){
+        productID = id;
+        name = n;
+        category = c;
+        price = p;
+        stock = s;
+        left = right = NULL;
+        priceLeft=NULL;
+        priceRight=NULL;
+    }
+};
+class productCatalog{
+public:
+    productNode* root;
+    productNode* rootPrice;
+    productCatalog(){
+        root = NULL;
+        rootPrice=NULL;
+    }
+    productNode* addID(productNode* r,productNode* newnode){
+        if(r == NULL){
+            return newnode;
+        }
+        if(newnode->productID < r->productID){
+            r->left = addID(r->left, newnode);
+        }
+        if(newnode->productID > r->productID){
+            r->right = addID(r->right, newnode);
+        }
+        return r;
+    }
+    
+
+    productNode* addPrice(productNode* root, productNode* newnode){
+        if(!root) return newnode;
+        if(newnode->price< root->price)
+            root->priceLeft=addPrice(root->priceLeft,newnode);
+        else 
+            root->priceRight=addPrice(root->priceRight,newnode);
+        return root;
+        }
+    
+    
+    void insertProduct(int id, string n, string c, double p, int s){
+        productNode* newnode=new productNode(id,n,c,p,s);
+        root=addID(root,newnode);
+        rootPrice=addPrice(rootPrice,newnode);
+    }
+
+    productNode* searchProduct(productNode* r, int id){
+        if(r == NULL || id==r->productID){
+            return r;
+        }
+        if(id < r->productID ){
+            return searchProduct(r->left,id);
+        }
+        if(id > r->productID){
+            return searchProduct(r->right,id);
+        }
+    }
+
+
+
+    void searchProduct(int id){
+        productNode* result = searchProduct(root, id);
+        if(result == NULL){
+            cout<<"Product not found "<<nl;
+        }
+        else{cout << "Product with ID: " << result->productID << " is found" <<nl;}
+    }
+
+    productNode* findMin(productNode* r){
+        while(r->left != NULL){
+            r = r->left;
+        }
+        return r;
+    }
+
+    productNode* removeProduct(productNode* r, int id){
+        if(r== NULL){
+            return NULL;
+        }
+        if(id< r->productID){
+            r->left = removeProduct(r->left,id);
+        }
+        else if(id> r->productID){
+            r->right = removeProduct(r->right,id);
+        }
+        else{
+            if(r->left == NULL && r->right == NULL){
+                delete r;
+                return NULL;
+            }
+            else if(r->left == NULL){
+                productNode* temp = r->right;
+                delete r;
+                return temp;
+            }
+            else if(r->right == NULL){
+                productNode* temp = r->left;
+                delete r;
+                return temp;
+            }
+            else{
+                productNode* temp = findMin(r->right);
+                r->productID = temp->productID;
+                r->name = temp->name;
+                r->category = temp->category;
+                r->price = temp->price;
+                r->stock = temp->stock;
+                r->right = removeProduct(r->right, temp->productID);
+            }
+        }
+        return r;
+    }
+
+    void removeProduct(int id){
+        root = removeProduct(root,id);
+    }
+
+
+    void sortBy_ID(productNode* root){
+        if(!root) return;
+        sortBy_ID(root->left);
+        cout<<"Product Name: "<<root->name<<nl<<"ID: "<<root->productID<<nl<<"Price: "<<root->price<<" L.E"<<nl;
+        sortBy_ID(root->right);
+    }
+
+    void sortBy_price(productNode* root){
+        if(!root) return;
+        sortBy_price(root->priceLeft);
+        cout<<"Product Name: "<<root->name<<nl<<"ID: "<<root->productID<<nl<<"Price: "<<root->price<<" L.E"<<nl;
+        sortBy_price(root->priceRight);
+    }
+};
+//---------------------------------------------------------------------------------------------------------------------------
+
+
 int main()
 {
     FIO
+     productCatalog catalog;
+    catalog.insertProduct(101,"Laptop","Electronics",30000,10);
+    catalog.insertProduct(55,"Mouse","Accessories",250,100);
+    catalog.insertProduct(200,"Phone","Electronics",15000,25);
+    catalog.insertProduct(80,"Keyboard","Accessories",500,60);
+
+    catalog.searchProduct(55);
+
+    cout << "\t Products by ID"<<nl;
+    catalog.sortBy_ID(catalog.root);
+
+    cout << "\tProducts by Price"<<nl;
+    catalog.sortBy_price(catalog.rootPrice);
     return 0;
 }
