@@ -219,8 +219,8 @@ public:
             getline(ss, phone, ',');
             getline(ss, address, ',');
             if(!isExists(stoi(id))){
-            addCustomer(stoi(id), name, email, phone, address, false); // false عشان ما يحفظش الملف تاني
-        }   
+            addCustomer(stoi(id), name, email, phone, address, false);
+        }
         }
 
         file.close();
@@ -233,6 +233,59 @@ public:
             node_Customer *del = head;
             head = head->next;
             delete del;
+        }
+    }
+};
+//----------------------------------------------------------------- Order History- yousef tarek
+class OrderNode{
+    public:
+    int orderID;
+    int customerID;
+    string product_name;
+    int price;
+    OrderNode* Next;
+    OrderNode* Prev;
+    OrderNode(int or_id, int cs_id, string name, int money){
+        orderID = or_id;
+        customerID = cs_id;
+        product_name = name;
+        price = money;
+        Next = Prev = NULL;
+    }
+};
+class OrderHistory{
+public:
+    OrderNode* head;
+    OrderNode* tail;
+    OrderHistory(){
+        head = tail = NULL;
+    }
+    void addOrder(int or_id, int cs_id, string name, int money){
+        OrderNode * newNode = new OrderNode(or_id, cs_id, name, money);
+        if (head== NULL){
+            head = tail = newNode;
+        }
+        else{
+            tail->Next = newNode;
+            newNode->Prev = tail;
+            tail = newNode;
+        }
+    }
+    void viewOrders(int cs_id){
+        OrderNode * temp = head;
+        bool found = false;
+        while(temp!= NULL){
+            if(temp->customerID == cs_id){
+                cout << "Order ID: " << temp->orderID << endl;
+                cout << "Product: " << temp->product_name << endl;
+                cout << "Price: " <<temp->price<<" $"<< endl;
+                cout << "------------------------\n";
+                found = true;
+            }
+            temp= temp->Next;
+            }
+            if(!found){
+                cout<<" customer has not placed any orders"<<endl;
         }
     }
 };
@@ -309,6 +362,7 @@ public:
         if(id > r->productID){
             return searchProduct(r->right,id);
         }
+        return NULL;
     }
 
 
@@ -391,18 +445,5 @@ public:
 int main()
 {
     FIO
-     productCatalog catalog;
-    catalog.insertProduct(101,"Laptop","Electronics",30000,10);
-    catalog.insertProduct(55,"Mouse","Accessories",250,100);
-    catalog.insertProduct(200,"Phone","Electronics",15000,25);
-    catalog.insertProduct(80,"Keyboard","Accessories",500,60);
-
-    catalog.searchProduct(55);
-
-    cout << "\t Products by ID"<<nl;
-    catalog.sortBy_ID(catalog.root);
-
-    cout << "\tProducts by Price"<<nl;
-    catalog.sortBy_price(catalog.rootPrice);
     return 0;
 }
