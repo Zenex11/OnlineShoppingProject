@@ -178,6 +178,15 @@ public:
             temp = temp->next;
         }
     }
+    void search_Costumer(int id){
+        if(isExists(id))
+            cout<<"Costumer with ID: "<<id<<" is found"<<nl;
+        else 
+            cout<<"Costumer with ID: "<<id<<" isn't found"<<nl;
+    }
+
+
+
     void save_File(){
         ofstream file(filename);
         if(!file){
@@ -210,7 +219,7 @@ public:
             getline(ss, phone, ',');
             getline(ss, address, ',');
             if(!isExists(stoi(id))){
-            addCustomer(stoi(id), name, email, phone, address, false); // false عشان ما يحفظش الملف تاني
+            addCustomer(stoi(id), name, email, phone, address, false);
         }
         }
 
@@ -280,46 +289,69 @@ public:
         }
     }
 };
-//----------------------------------------------------------------------------------------Product Catalog- yousef tarek
+//-----------------------------------------------------------------------------------------------------------------
+
+// Product catalog and sorting BST - Youssef and Farha---------------------------------------------------------------
 class productNode{
 public:
     int productID;
     string name;
     string category;
-    int price;
+    double price;
     int stock;
     productNode * left;
     productNode * right;
-    productNode(int id, string n, string c, int p , int s){
+    productNode* priceLeft;
+    productNode* priceRight;
+    productNode(int id, string n, string c, double p , int s){
         productID = id;
         name = n;
         category = c;
         price = p;
         stock = s;
         left = right = NULL;
+        priceLeft=NULL;
+        priceRight=NULL;
     }
 };
 class productCatalog{
 public:
     productNode* root;
+    productNode* rootPrice;
     productCatalog(){
         root = NULL;
+        rootPrice=NULL;
     }
-    productNode* addProduct(productNode* r, int id, string n, string c, int p, int s){
+    productNode* addID(productNode* r,productNode* newnode){
         if(r == NULL){
-            return new productNode(id,n,c,p,s);
+            return newnode;
         }
-        if(id< r->productID){
-            r->left = addProduct(r->left, id, n, c, p, s);
+        if(newnode->productID < r->productID){
+            r->left = addID(r->left, newnode);
         }
-        if(id> r->productID){
-            r->right = addProduct(r->right, id, n, c, p, s);
+        if(newnode->productID > r->productID){
+            r->right = addID(r->right, newnode);
         }
         return r;
     }
-    void addProduct(int id, string n, string c, int p, int s){
-        root = addProduct(root,id ,n ,c , p, s);
+    
+
+    productNode* addPrice(productNode* root, productNode* newnode){
+        if(!root) return newnode;
+        if(newnode->price< root->price)
+            root->priceLeft=addPrice(root->priceLeft,newnode);
+        else 
+            root->priceRight=addPrice(root->priceRight,newnode);
+        return root;
+        }
+    
+    
+    void insertProduct(int id, string n, string c, double p, int s){
+        productNode* newnode=new productNode(id,n,c,p,s);
+        root=addID(root,newnode);
+        rootPrice=addPrice(rootPrice,newnode);
     }
+
     productNode* searchProduct(productNode* r, int id){
         if(r == NULL || id==r->productID){
             return r;
@@ -330,24 +362,26 @@ public:
         if(id > r->productID){
             return searchProduct(r->right,id);
         }
+        return NULL;
     }
+
+
+
     void searchProduct(int id){
         productNode* result = searchProduct(root, id);
         if(result == NULL){
-            cout<<"product not found "<<endl;
+            cout<<"Product not found "<<nl;
         }
-        else{cout << "Product ID: " << result->productID << endl;
-        cout << "Name: " << result->name << endl;
-        cout << "Category: " << result->category << endl;
-        cout << "Price: " << result->price << " $" << endl;
-        cout << "Stock: " << result->stock << endl;}
+        else{cout << "Product with ID: " << result->productID << " is found" <<nl;}
     }
+
     productNode* findMin(productNode* r){
         while(r->left != NULL){
             r = r->left;
         }
         return r;
     }
+
     productNode* removeProduct(productNode* r, int id){
         if(r== NULL){
             return NULL;
@@ -385,68 +419,29 @@ public:
         }
         return r;
     }
+
     void removeProduct(int id){
         root = removeProduct(root,id);
     }
 
-};
 
-//-----------------------------------------------------------------------------------------------------------------
-// Cart system-stack-----sama------------------------------------------------------------------------------
-struct Product {
-    int id;
-    string name;
-    double price;
-    Product* next;
-};
-
-class CartStack {
-private:
-    Product* top;
-
-public:
-    CartStack() {
-        top = NULL;
+    void sortBy_ID(productNode* root){
+        if(!root) return;
+        sortBy_ID(root->left);
+        cout<<"Product Name: "<<root->name<<nl<<"ID: "<<root->productID<<nl<<"Price: "<<root->price<<" L.E"<<nl;
+        sortBy_ID(root->right);
     }
 
-    void pushItem(int id, string name, double price) {
-        Product* newProduct = new Product();
-        newProduct->id = id;
-        newProduct->name = name;
-        newProduct->price = price;
-        newProduct->next = top;
-        top = newProduct;
-
-        cout << "Product added to cart successfully" << endl;
-    }
-
-    void popItem() {
-        if (top == NULL) {
-            cout << "Cart is empty" << endl;
-            return;
-        }
-
-        Product* temp = top;
-        cout << "Removed product: " << temp->name << endl;
-        top = top->next;
-        delete temp;
-    }
-
-    void displayCart() {
-        if (top == NULL) {
-            cout << "Cart is empty" << endl;
-            return;
-        }
-
-        Product* temp = top;
-        cout << "\nCart Items:\n";
-        while (temp != NULL) {
-            cout << temp->id << " " << temp->name << " " << temp->price << endl;
-            temp = temp->next;
-        }
+    void sortBy_price(productNode* root){
+        if(!root) return;
+        sortBy_price(root->priceLeft);
+        cout<<"Product Name: "<<root->name<<nl<<"ID: "<<root->productID<<nl<<"Price: "<<root->price<<" L.E"<<nl;
+        sortBy_price(root->priceRight);
     }
 };
-------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------
+
+
 int main()
 {
     FIO
