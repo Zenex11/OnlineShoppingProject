@@ -439,7 +439,61 @@ public:
         sortBy_price(root->priceRight);
     }
 };
-//---------------------------------------------------------------------------------------------------------------------------
+
+// Cart system-stack-----sama------------------------------------------------------------------------------
+struct Product {
+    int id;
+    string name;
+    double price;
+    Product* next;
+};
+
+class CartStack {
+private:
+    Product* top;
+
+public:
+    CartStack() {
+        top = NULL;
+    }
+
+    void pushItem(int id, string name, double price) {
+        Product* newProduct = new Product();
+        newProduct->id = id;
+        newProduct->name = name;
+        newProduct->price = price;
+        newProduct->next = top;
+        top = newProduct;
+
+        cout << "Product added to cart successfully" << endl;
+    }
+
+    void popItem() {
+        if (top == NULL) {
+            cout << "Cart is empty" << endl;
+            return;
+        }
+
+        Product* temp = top;
+        cout << "Removed product: " << temp->name << endl;
+        top = top->next;
+        delete temp;
+    }
+
+    void displayCart() {
+        if (top == NULL) {
+            cout << "Cart is empty" << endl;
+            return;
+        }
+
+        Product* temp = top;
+        cout << "\nCart Items:\n";
+        while (temp != NULL) {
+            cout << temp->id << " " << temp->name << " " << temp->price << endl;
+            temp = temp->next;
+        }
+    }
+};
 
 
 int main()
